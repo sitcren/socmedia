@@ -752,14 +752,13 @@
         }
 
         /* =====================================================
-           PROJECT CARDS - Tamanho uniforme 1080x1080
+           PROJECT CARDS - Tamanho uniforme
         ====================================================== */
         .project-card {
             position: relative;
             display: block;
             width: 100%;
             padding-bottom: 100%;
-            /* Proporção 1:1 (quadrado) */
             overflow: hidden;
             background: #151515;
             border-radius: 12px;
@@ -945,26 +944,54 @@
             padding: 0;
         }
 
-        .modal-project-image {
+        .modal-media-container {
             width: 100%;
-            height: 400px;
-            background-size: cover;
-            background-position: center;
+            background: #0a0a0a;
+            min-height: 300px;
+            max-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
             position: relative;
         }
 
-        .modal-project-image .modal-category-badge {
+        .modal-media-container img {
+            max-width: 100%;
+            max-height: 600px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-media-container iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: 0;
+        }
+
+        .modal-media-container .media-overlay-btn {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            bottom: 20px;
+            right: 20px;
             background: var(--accent);
             color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 10px;
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            z-index: 10;
+        }
+
+        .modal-media-container .media-overlay-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 91, 34, 0.4);
         }
 
         .modal-project-content {
@@ -1280,8 +1307,17 @@
                 display: none;
             }
 
-            .modal-project-image {
-                height: 250px;
+            .modal-media-container {
+                min-height: 200px;
+                max-height: 400px;
+            }
+
+            .modal-media-container img {
+                max-height: 400px;
+            }
+
+            .modal-media-container iframe {
+                min-height: 250px;
             }
 
             .modal-project-content h3 {
@@ -1413,8 +1449,17 @@
                 font-size: 16px;
             }
 
-            .modal-project-image {
-                height: 200px;
+            .modal-media-container {
+                min-height: 150px;
+                max-height: 300px;
+            }
+
+            .modal-media-container img {
+                max-height: 300px;
+            }
+
+            .modal-media-container iframe {
+                min-height: 200px;
             }
 
             .modal-project-content {
@@ -1832,13 +1877,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="modal-project-image" id="modalImage">
-                        <span class="modal-category-badge" id="modalCategory">CATEGORIA</span>
+                    <div id="modalMediaContainer" class="modal-media-container">
+                        <!-- Conteúdo dinâmico inserido via JavaScript -->
                     </div>
                     <div class="modal-project-content">
                         <h3 id="modalProjectTitle">Título do Projeto</h3>
                         <p class="modal-description" id="modalDescription">Descrição curta do projeto</p>
-                        <div class="modal-full-description" id="modalFullDescription">
+                        <div class="modal-full-description">
                             <strong>Sobre o projeto:</strong>
                             <p id="modalFullText">Descrição completa do projeto...</p>
                         </div>
@@ -1856,7 +1901,8 @@
     <!-- =========================================================
      BOOTSTRAP JS
 ========================================================= -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
 
     <script type="module">
         // Import constants
@@ -1930,16 +1976,16 @@
         function renderTeam() {
             const teamGrid = document.getElementById('teamGrid');
             teamGrid.innerHTML = teamMembers.map(member => `
-            <div class="col-md-4">
-                <div class="team-card">
-                    <div class="team-photo" style="background-image: url('${member.photo}');"></div>
-                    <div class="team-info">
-                        <small>${member.role}</small>
-                        <h3>${member.name}</h3>
+                    <div class="col-md-4">
+                        <div class="team-card">
+                            <div class="team-photo" style="background-image: url('${member.photo}');"></div>
+                            <div class="team-info">
+                                <small>${member.role}</small>
+                                <h3>${member.name}</h3>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `).join('');
+                `).join('');
         }
         renderTeam();
 
@@ -1977,23 +2023,23 @@
 
             if (pageItems.length === 0) {
                 grid.innerHTML = `<div class="col-12 text-center py-5" style="color:#888;">
-                <p>Nenhum projeto encontrado nesta categoria.</p>
-            </div>`;
+                        <p>Nenhum projeto encontrado nesta categoria.</p>
+                    </div>`;
             } else {
                 grid.innerHTML = pageItems.map((item) => {
                     const colorClass = categoryColors[item.category] || 'project-video';
                     return `
-                    <div class="col-lg-4 col-md-6 project-item" data-category="${currentFilter}">
-                        <div class="project-card" data-project-id="${item.id}" data-category-filter="${currentFilter}">
-                            <div class="project-image ${colorClass}" style="background-image: url('${item.thumbnail}');"></div>
-                            <div class="project-overlay">
-                                <small>${item.category}</small>
-                                <h3>${item.title}</h3>
+                        <div class="col-lg-4 col-md-6 project-item" data-category="${currentFilter}">
+                            <div class="project-card" data-project-id="${item.id}" data-category-filter="${currentFilter}">
+                                <div class="project-image ${colorClass}" style="background-image: url('${item.thumbnail}'); background-size: cover; background-position: center;"></div>
+                                <div class="project-overlay">
+                                    <small>${item.category}</small>
+                                    <h3>${item.title}</h3>
+                                </div>
+                                <div class="project-arrow">↗</div>
                             </div>
-                            <div class="project-arrow">↗</div>
                         </div>
-                    </div>
-                `;
+                    `;
                 }).join('');
             }
 
@@ -2015,7 +2061,6 @@
            MODAL
         ============================================================ */
         function openModal(projectId, filter) {
-            // Buscar todos os projetos da categoria atual
             let allProjects = [];
             if (filter === 'all') {
                 allProjects = Object.values(projects).flat();
@@ -2041,14 +2086,52 @@
 
             document.getElementById('modalTitle').textContent = project.title;
             document.getElementById('modalProjectTitle').textContent = project.title;
-            document.getElementById('modalCategory').textContent = project.category;
             document.getElementById('modalDescription').textContent = project.description;
 
-            // Imagem
-            const imageEl = document.getElementById('modalImage');
-            imageEl.style.backgroundImage = `url('${project.thumbnail}')`;
-            imageEl.style.backgroundSize = 'cover';
-            imageEl.style.backgroundPosition = 'center';
+            // Container da imagem/vídeo
+            const mediaContainer = document.getElementById('modalMediaContainer');
+
+            // Limpar container
+            mediaContainer.innerHTML = '';
+
+            // Renderizar conteúdo baseado no tipo
+            if (project.type === 'video') {
+                // Vídeo - mostrar iframe
+                mediaContainer.innerHTML = `
+                        <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000;width:100%;">
+                            <iframe 
+                                src="${project.videoUrl}?autoplay=0&rel=0&modestbranding=1" 
+                                style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
+            } else if (project.type === 'image' || project.type === 'social') {
+                // Imagem - mostrar imagem em tamanho adequado
+                const imgUrl = project.imageUrl || project.thumbnail;
+                mediaContainer.innerHTML = `
+                        <div style="width:100%;height:100%;min-height:400px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;overflow:hidden;">
+                            <img src="${imgUrl}" alt="${project.title}" style="max-width:100%;max-height:600px;width:auto;height:auto;object-fit:contain;display:block;">
+                        </div>
+                    `;
+            } else if (project.type === 'website') {
+                // Website - mostrar imagem com link
+                mediaContainer.innerHTML = `
+                        <div style="width:100%;height:100%;min-height:400px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;overflow:hidden;position:relative;cursor:pointer;" onclick="window.open('${project.websiteUrl || '#'}', '_blank')">
+                            <img src="${project.thumbnail}" alt="${project.title}" style="max-width:100%;max-height:600px;width:auto;height:auto;object-fit:contain;display:block;">
+                            <button class="media-overlay-btn">Visitar Site ↗</button>
+                        </div>
+                    `;
+            } else if (project.type === 'brand') {
+                // Branding - mostrar imagem com link para PDF
+                mediaContainer.innerHTML = `
+                        <div style="width:100%;height:100%;min-height:400px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;overflow:hidden;position:relative;cursor:pointer;" onclick="window.open('${project.pdfUrl || '#'}', '_blank')">
+                            <img src="${project.thumbnail}" alt="${project.title}" style="max-width:100%;max-height:600px;width:auto;height:auto;object-fit:contain;display:block;">
+                            <button class="media-overlay-btn">Ver PDF ↗</button>
+                        </div>
+                    `;
+            }
 
             // Descrição completa
             const fullText = project.fullDescription || 'Descrição detalhada do projeto em desenvolvimento.';
